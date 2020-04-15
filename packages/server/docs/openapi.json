@@ -1,0 +1,723 @@
+{
+  "openapi": "3.0.0",
+  "info": {
+    "title": "NodeJs Bookmarks API",
+    "version": "1.0.0",
+    "license": {
+      "name": "MIT"
+    }
+  },
+  "tags": [
+    {
+      "name": "Bookmarks",
+      "description": "Everything about Bookmarks"
+    }
+  ],
+  "paths": {
+    "/api/bookmarks": {
+      "get": {
+        "summary": "Fetch and filter the Bookmarks",
+        "description": "Fetch and filter the Bookmarks. Returns an Array of Bookmarks",
+        "tags": [
+          "Bookmarks"
+        ],
+        "parameters": [
+          {
+            "name": "limit",
+            "description": "Max number of results",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer"
+            },
+            "example": 10
+          },
+          {
+            "name": "offset",
+            "description": "Number of first results to ignore",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer"
+            },
+            "example": 0
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful operation",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BookmarksResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "example": {
+                  "statusCode": 400,
+                  "error": "Bad Request",
+                  "message": "\"limit\" must be a number"
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "summary": "Add a new Bookmark from its URL",
+        "tags": [
+          "Bookmarks"
+        ],
+        "requestBody": {
+          "description": "URL that need to be bookmarked",
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "url": {
+                    "type": "string",
+                    "description": "Original URL to bookmark. Flickr & Vimeo only"
+                  },
+                  "tags": {
+                    "type": "array",
+                    "items": {
+                      "type": "string"
+                    },
+                    "minItems": 0
+                  }
+                },
+                "required": [
+                  "url"
+                ]
+              },
+              "example": {
+                "url": "https://www.flickr.com/photos/120268795@N05/29296232313/",
+                "tags": [
+                  "iceland",
+                  "waterfall"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Bookmark created",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BookmarkResponse"
+                },
+                "example": {
+                  "statusCode": 201,
+                  "message": "Created",
+                  "data": {
+                    "id": 3,
+                    "url": "https://live.staticflickr.com/2909/33590292125_fd4290acec_b.jpg",
+                    "title": "Jökulsárlón",
+                    "author": "pajavi69",
+                    "thumbnailUrl": "https://live.staticflickr.com/2909/33590292125_fd4290acec_q.jpg",
+                    "providerName": "Flickr",
+                    "media": {
+                      "width": 1024,
+                      "height": 341
+                    },
+                    "createdAt": "2020-04-14T21:26:37.110Z",
+                    "tags": [
+                      "iceland"
+                    ]
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "example": {
+                  "statusCode": 400,
+                  "error": "Bad Request",
+                  "message": "Unsupported URL 'https://www.youtube.com/watch?v=4v3li_jhVg8&list=RDEMaPBn8jl-k8ZbwRz33nTdrA&index=9'"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Conflict, the bookmark already exists",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "example": {
+                  "statusCode": 409,
+                  "error": "Conflict",
+                  "message": "Bookmark 'https://www.flickr.com/photos/120268795@N05/29296232313/' already exists"
+                }
+              }
+            }
+          }
+        }
+      },
+      "put": {
+        "summary": "Update an existing Bookmark",
+        "tags": [
+          "Bookmarks"
+        ],
+        "requestBody": {
+          "description": "Bookmark that needs to be updated",
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "oneOf": [
+                  {
+                    "$ref": "#/components/schemas/ImageBookmark"
+                  },
+                  {
+                    "$ref": "#/components/schemas/VideoBookmark"
+                  }
+                ],
+                "example": {
+                  "id": 3,
+                  "url": "https://live.staticflickr.com/2909/33590292125_fd4290acec_b.jpg",
+                  "title": "Jökulsárlón",
+                  "author": "pajavi69",
+                  "thumbnailUrl": "https://live.staticflickr.com/2909/33590292125_fd4290acec_q.jpg",
+                  "providerName": "Flickr",
+                  "media": {
+                    "width": 1024,
+                    "height": 341
+                  },
+                  "createdAt": "2020-04-14T21:26:37.110Z",
+                  "tags": [
+                    "iceland"
+                  ]
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Bookmark updated",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BookmarkResponse"
+                },
+                "example": {
+                  "statusCode": 200,
+                  "message": "OK",
+                  "data": {
+                    "id": 3,
+                    "url": "https://live.staticflickr.com/2909/33590292125_fd4290acec_b.jpg",
+                    "title": "Jökulsárlón",
+                    "author": "pajavi69",
+                    "thumbnailUrl": "https://live.staticflickr.com/2909/33590292125_fd4290acec_q.jpg",
+                    "providerName": "Flickr",
+                    "media": {
+                      "width": 1024,
+                      "height": 341
+                    },
+                    "createdAt": "2020-04-14T21:26:37.110Z",
+                    "tags": [
+                      "iceland"
+                    ]
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Bookmark not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/bookmarks/{id}": {
+      "get": {
+        "summary": "Find a Bookmark by ID",
+        "description": "Returns a single Bookmark",
+        "tags": [
+          "Bookmarks"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "ID of the Bookmark to return",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            },
+            "example": 2
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful operation",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BookmarkResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "example": {
+                  "statusCode": 400,
+                  "message": "Bad Request",
+                  "errors": [
+                    {
+                      "msg": "Invalid URL",
+                      "param": "id",
+                      "value": "abcd",
+                      "location": "params"
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Bookmark not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "summary": "Delete a Bookmark by ID",
+        "tags": [
+          "Bookmarks"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "ID of the Bookmark to delete",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            },
+            "example": 3
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Successful operation"
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                },
+                "example": {
+                  "statusCode": 400,
+                  "error": "Bad Request",
+                  "message": "\"id\" must be a number"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "BaseResponse": {
+        "type": "object",
+        "properties": {
+          "statusCode": {
+            "type": "integer",
+            "description": "HTTP status code"
+          },
+          "message": {
+            "type": "string",
+            "description": "Response's message"
+          }
+        },
+        "required": [
+          "statusCode",
+          "message"
+        ],
+        "example": {
+          "statusCode": 200,
+          "message": "OK"
+        }
+      },
+      "Error": {
+        "type": "object",
+        "description": "Error",
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/BaseResponse"
+          },
+          {
+            "type": "object",
+            "properties": {
+              "error": {
+                "type": "string",
+                "description": "HTTP Error description"
+              }
+            },
+            "required": [
+              "error"
+            ],
+            "example": {
+              "statusCode": 404,
+              "error": "Not Found",
+              "message": "Bookmark 12345 not found"
+            }
+          }
+        ]
+      },
+      "Bookmark": {
+        "type": "object",
+        "description": "A Bookmark",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "description": "Unique ID of the Bookmark"
+          },
+          "url": {
+            "type": "string",
+            "format": "url"
+          },
+          "title": {
+            "type": "string"
+          },
+          "author": {
+            "type": "string"
+          },
+          "thumbnailUrl": {
+            "type": "string"
+          },
+          "providerName": {
+            "type": "string"
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "tags": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "minItems": 0
+          }
+        },
+        "required": [
+          "id",
+          "url",
+          "createdAt"
+        ],
+        "example": {
+          "id": 3,
+          "url": "https://live.staticflickr.com/2909/33590292125_fd4290acec_b.jpg",
+          "title": "Jökulsárlón",
+          "author": "pajavi69",
+          "thumbnailUrl": "https://live.staticflickr.com/2909/33590292125_fd4290acec_q.jpg",
+          "providerName": "Flickr",
+          "media": {
+            "width": 1024,
+            "height": 341
+          },
+          "createdAt": "2020-04-14T21:26:37.110Z",
+          "tags": [
+            "iceland"
+          ]
+        }
+      },
+      "ImageBookmark": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/Bookmark"
+          },
+          {
+            "type": "object",
+            "description": "An Image Bookmark",
+            "properties": {
+              "media": {
+                "$ref": "#/components/schemas/ImageMedia"
+              }
+            },
+            "required": [
+              "media"
+            ]
+          }
+        ],
+        "example": {
+          "id": 3,
+          "url": "https://live.staticflickr.com/2909/33590292125_fd4290acec_b.jpg",
+          "title": "Jökulsárlón",
+          "author": "pajavi69",
+          "thumbnailUrl": "https://live.staticflickr.com/2909/33590292125_fd4290acec_q.jpg",
+          "providerName": "Flickr",
+          "media": {
+            "width": 1024,
+            "height": 341
+          },
+          "createdAt": "2020-04-14T21:26:37.110Z",
+          "tags": [
+            "iceland"
+          ]
+        }
+      },
+      "VideoBookmark": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/Bookmark"
+          },
+          {
+            "type": "object",
+            "description": "A Video Bookmark",
+            "properties": {
+              "media": {
+                "$ref": "#/components/schemas/VideoMedia"
+              }
+            },
+            "required": [
+              "media"
+            ]
+          }
+        ],
+        "example": {
+          "id": 14,
+          "url": "https://vimeo.com/5251715",
+          "title": "Claude Debussy - Clair de Lune",
+          "author": "Iqra75",
+          "media": {
+            "html": "<iframe src=\"https://player.vimeo.com/video/5251715?app_id=122963\" width=\"384\" height=\"288\" frameborder=\"0\" allow=\"autoplay; fullscreen\" allowfullscreen title=\"Claude Debussy - Clair de Lune\"></iframe>",
+            "width": 384,
+            "height": 288,
+            "length": 355
+          },
+          "thumbnailUrl": "https://live.staticflickr.com/2909/33590292125_fd4290acec_q.jpg",
+          "providerName": "Vimeo",
+          "tags": [
+            "music"
+          ],
+          "createdAt": "2020-04-12T00:36:22.680Z"
+        }
+      },
+      "ImageMedia": {
+        "type": "object",
+        "description": "Image media properties",
+        "properties": {
+          "width": {
+            "type": "integer",
+            "format": "int64",
+            "description": "The width in pixels of the image"
+          },
+          "height": {
+            "type": "integer",
+            "format": "int64",
+            "description": "The height in pixels of the image"
+          }
+        },
+        "required": [
+          "width",
+          "height"
+        ]
+      },
+      "VideoMedia": {
+        "type": "object",
+        "description": "Video media properties",
+        "properties": {
+          "html": {
+            "type": "string",
+            "format": "html",
+            "description": "The HTML required to embed a video player"
+          },
+          "width": {
+            "type": "integer",
+            "format": "int64",
+            "description": "The width in pixels required to display the HTML"
+          },
+          "height": {
+            "type": "integer",
+            "format": "int64",
+            "description": "The height in pixels required to display the HTML"
+          },
+          "length": {
+            "type": "integer",
+            "format": "int64",
+            "description": "The length (duration) of the video"
+          }
+        },
+        "required": [
+          "html",
+          "width",
+          "height"
+        ]
+      },
+      "BookmarkResponse": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/BaseResponse"
+          },
+          {
+            "type": "object",
+            "properties": {
+              "data": {
+                "oneOf": [
+                  {
+                    "$ref": "#/components/schemas/ImageBookmark"
+                  },
+                  {
+                    "$ref": "#/components/schemas/VideoBookmark"
+                  }
+                ]
+              }
+            },
+            "required": [
+              "data"
+            ]
+          }
+        ],
+        "example": {
+          "statusCode": 200,
+          "message": "OK",
+          "data": {
+            "id": 3,
+            "url": "https://live.staticflickr.com/2909/33590292125_fd4290acec_b.jpg",
+            "title": "Jökulsárlón",
+            "author": "pajavi69",
+            "thumbnailUrl": "https://live.staticflickr.com/2909/33590292125_fd4290acec_q.jpg",
+            "providerName": "Flickr",
+            "media": {
+              "width": 1024,
+              "height": 341
+            },
+            "createdAt": "2020-04-14T21:26:37.110Z",
+            "tags": [
+              "iceland"
+            ]
+          }
+        }
+      },
+      "BookmarksResponse": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/BaseResponse"
+          },
+          {
+            "type": "object",
+            "properties": {
+              "data": {
+                "type": "object",
+                "properties": {
+                  "bookmarks": {
+                    "type": "array",
+                    "items": {
+                      "oneOf": [
+                        {
+                          "$ref": "#/components/schemas/ImageBookmark"
+                        },
+                        {
+                          "$ref": "#/components/schemas/VideoBookmark"
+                        }
+                      ]
+                    },
+                    "minItems": 0
+                  },
+                  "count": {
+                    "type": "integer",
+                    "description": "Total number of Bookmarks"
+                  },
+                  "nextURL": {
+                    "type": "string",
+                    "description": "URL to call to retrieve the next batch of results"
+                  },
+                  "previousURL": {
+                    "type": "string",
+                    "description": "URL to call to retrieve the previous batch of results"
+                  }
+                }
+              }
+            },
+            "required": [
+              "data"
+            ]
+          }
+        ],
+        "example": {
+          "statusCode": 206,
+          "message": "Partial Content",
+          "data": {
+            "bookmarks": [
+              {
+                "id": 3,
+                "url": "https://live.staticflickr.com/2909/33590292125_fd4290acec_b.jpg",
+                "title": "Jökulsárlón",
+                "author": "pajavi69",
+                "thumbnailUrl": "https://live.staticflickr.com/2909/33590292125_fd4290acec_q.jpg",
+                "providerName": "Flickr",
+                "media": {
+                  "width": 1024,
+                  "height": 341
+                },
+                "createdAt": "2020-04-14T21:26:37.110Z",
+                "tags": [
+                  "iceland"
+                ]
+              }
+            ],
+            "count": 3,
+            "nextURL": "http://127.0.0.1:3001/api/bookmarks?limit=1&offset=2",
+            "previousURL": "http://127.0.0.1:3001/api/bookmarks?limit=1&offset=0"
+          }
+        }
+      }
+    }
+  }
+}

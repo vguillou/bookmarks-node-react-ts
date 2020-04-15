@@ -1,0 +1,14 @@
+{
+    "ignore": [
+        "**/*.spec.ts",
+        "node_modules",
+        "public"
+    ],
+    "watch": [
+        ".env",
+        "docs/openapi.json",
+        "src/**/*.*"
+    ],
+    "ext": "ts,tsx,js,jsx,json",
+    "exec": "node -r ts-node/register --inspect=9228 src/index.ts"
+}

@@ -1,0 +1,14 @@
+{
+    "name": "@vguillou/bookmarks-common",
+    "version": "1.0.0",
+    "author": "Vincent Guillou",
+    "license": "WTFPL",
+    "private": true,
+    "devDependencies": {
+        "typescript": "^3.8.3"
+    },
+    "scripts": {
+        "build": "tsc",
+        "dev": "tsc --watch"
+    }
+}

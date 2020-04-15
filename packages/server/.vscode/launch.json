@@ -1,0 +1,24 @@
+{
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "name": "[attach] Node(mon)",
+      "type": "node",
+      "request": "attach",
+      "port": 9228,
+      "restart": true,
+      "protocol": "inspector",
+    },
+    {
+      "name": "[launch] Nodemon",
+      "type": "node",
+      "request": "launch",
+      "runtimeExecutable": "${workspaceRoot}/node_modules/nodemon/bin/nodemon.js",
+      "port": 9228,
+      "restart": true,
+      "protocol": "inspector",
+      "console": "integratedTerminal",
+      "internalConsoleOptions": "neverOpen"
+    }
+  ]
+}
